@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutrition Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Use Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple transition for result display */
+        #results-container.hidden {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease-out, max-height 0.3s ease-out;
+        }
+        #results-container {
+            opacity: 1;
+            max-height: 500px; /* Adjust as needed */
+            transition: opacity 0.5s ease-in, max-height 0.5s ease-in;
+        }
+        /* Loading spinner styles */
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px; /* Space between spinner and text */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-cyan-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 w-full max-w-lg">
+        <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
+            Meal Nutrition Estimator
+        </h1>
+
+        <div class="mb-4">
+            <label for="meal-description" class="block text-sm font-medium text-gray-700 mb-1">
+                Describe your meal:
+            </label>
+            <textarea id="meal-description" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-150 ease-in-out" placeholder="e.g., 1 bowl of chicken soup, 2 slices of whole wheat bread with butter, 1 apple"></textarea>
+        </div>
+
+        <button id="analyze-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition duration-200 ease-in-out flex items-center justify-center disabled:opacity-50">
+            <span id="button-text">Analyze Meal</span>
+            <div id="loading-spinner" class="loader hidden ml-2"></div> </button>
+
+        <div id="message-area" class="mt-4 text-center text-sm text-red-600 min-h-[20px]">
+            </div>
+
+        <div id="results-container" class="mt-6 border-t border-gray-200 pt-6 hidden">
+             <h2 class="text-xl font-semibold text-gray-700 mb-4 text-center">Estimated Nutrition</h2>
+             <div class="space-y-3">
+                 <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                     <span class="font-medium text-gray-600">Total Calories:</span>
+                     <span id="calories-result" class="font-bold text-lg text-green-700">--</span>
+                 </div>
+                 <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                     <span class="font-medium text-gray-600">Carbohydrates:</span>
+                     <span id="carbs-result" class="font-bold text-gray-800">-- g</span>
+                 </div>
+                 <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                     <span class="font-medium text-gray-600">Protein:</span>
+                     <span id="protein-result" class="font-bold text-gray-800">-- g</span>
+                 </div>
+                 <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg">
+                     <span class="font-medium text-gray-600">Fat:</span>
+                     <span id="fat-result" class="font-bold text-gray-800">-- g</span>
+                 </div>
+             </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to HTML elements
+        const mealInput = document.getElementById('meal-description');
+        const analyzeButton = document.getElementById('analyze-button');
+        const buttonText = document.getElementById('button-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const resultsContainer = document.getElementById('results-container');
+        const caloriesResult = document.getElementById('calories-result');
+        const carbsResult = document.getElementById('carbs-result');
+        const proteinResult = document.getElementById('protein-result');
+        const fatResult = document.getElementById('fat-result');
+        const messageArea = document.getElementById('message-area');
+
+        /**
+         * Simulates calling a backend API to get nutrition data.
+         * In a real app, this would use fetch() to send data to your server.
+         * @param {string} mealDescription - The meal description from the user.
+         * @returns {Promise<object>} A promise that resolves with nutrition data or rejects with an error.
+         */
+        function getNutritionData(mealDescription) {
+            console.log("Simulating API call for:", mealDescription);
+            // --- Backend Interaction Simulation ---
+            // Replace this with your actual fetch() call to your backend API endpoint.
+            // Example: return fetch('/api/nutrition', { method: 'POST', body: JSON.stringify({ description: mealDescription }), headers: {'Content-Type': 'application/json'} }).then(res => res.json());
+
+            return new Promise((resolve, reject) => {
+                // Simulate network delay
+                setTimeout(() => {
+                    if (!mealDescription.trim()) {
+                        reject("Please enter a meal description.");
+                        return;
+                    }
+
+                    // --- Mock Response Logic ---
+                    // This is a very basic mock. A real backend would use NLP
+                    // and a nutrition database.
+                    let calories = 300;
+                    let carbs = 30;
+                    let protein = 20;
+                    let fat = 15;
+
+                    const lowerCaseDesc = mealDescription.toLowerCase();
+
+                    if (lowerCaseDesc.includes("chicken")) {
+                        calories += 150; protein += 25; fat += 5;
+                    }
+                    if (lowerCaseDesc.includes("salad")) {
+                        calories += 50; carbs += 10; fat += 2;
+                    }
+                     if (lowerCaseDesc.includes("bread") || lowerCaseDesc.includes("rice") || lowerCaseDesc.includes("pasta")) {
+                        calories += 100; carbs += 20; protein += 3;
+                    }
+                    if (lowerCaseDesc.includes("butter") || lowerCaseDesc.includes("oil") || lowerCaseDesc.includes("cheese")) {
+                        calories += 100; fat += 10;
+                    }
+                     if (lowerCaseDesc.includes("apple") || lowerCaseDesc.includes("banana") || lowerCaseDesc.includes("orange")) {
+                        calories += 80; carbs += 20;
+                    }
+                     if (lowerCaseDesc.includes("pizza")) {
+                        calories = 700; carbs = 80; protein = 30; fat = 30;
+                    }
+                     if (lowerCaseDesc.includes("soup")) {
+                        calories += 120; carbs += 15; protein += 5; fat += 5;
+                    }
+
+                    // Resolve with the mock data in the expected JSON format
+                    resolve({
+                        total_calories: calories,
+                        macronutrients: {
+                            carbohydrates_g: carbs,
+                            protein_g: protein,
+                            fat_g: fat
+                        }
+                    });
+                    // --- End Mock Response Logic ---
+
+                }, 1500); // Simulate 1.5 seconds delay
+            });
+        }
+
+        /**
+         * Updates the UI with the fetched nutrition data.
+         * @param {object} data - The nutrition data object from the API.
+         */
+        function displayResults(data) {
+            caloriesResult.textContent = data.total_calories;
+            carbsResult.textContent = `${data.macronutrients.carbohydrates_g} g`;
+            proteinResult.textContent = `${data.macronutrients.protein_g} g`;
+            fatResult.textContent = `${data.macronutrients.fat_g} g`;
+            resultsContainer.classList.remove('hidden'); // Show results
+        }
+
+        /**
+         * Clears previous results and error messages.
+         */
+        function clearPreviousState() {
+             messageArea.textContent = ''; // Clear errors
+             resultsContainer.classList.add('hidden'); // Hide results
+             // Reset result text placeholders if desired
+             // caloriesResult.textContent = '--';
+             // carbsResult.textContent = '-- g';
+             // proteinResult.textContent = '-- g';
+             // fatResult.textContent = '-- g';
+        }
+
+        /**
+         * Shows a loading state on the button.
+         */
+        function showLoading() {
+            analyzeButton.disabled = true;
+            buttonText.textContent = 'Analyzing...';
+            loadingSpinner.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the loading state on the button.
+         */
+        function hideLoading() {
+            analyzeButton.disabled = false;
+            buttonText.textContent = 'Analyze Meal';
+            loadingSpinner.classList.add('hidden');
+        }
+
+        /**
+         * Displays an error message to the user.
+         * @param {string} message - The error message to display.
+         */
+        function displayError(message) {
+             messageArea.textContent = message;
+        }
+
+
+        // --- Event Listener ---
+        analyzeButton.addEventListener('click', () => {
+            const description = mealInput.value;
+            clearPreviousState();
+            showLoading();
+
+            getNutritionData(description)
+                .then(data => {
+                    // Success: Display the results
+                    displayResults(data);
+                })
+                .catch(error => {
+                    // Failure: Display an error message
+                    console.error("Error fetching nutrition data:", error);
+                    displayError(typeof error === 'string' ? error : "Could not analyze meal. Please try again.");
+                })
+                .finally(() => {
+                    // Always hide loading indicator regardless of success/failure
+                    hideLoading();
+                });
+        });
+
+    </script>
+
+</body>
+</html>
